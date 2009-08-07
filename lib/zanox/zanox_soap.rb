@@ -1,68 +1,89 @@
 require 'soap/wsdlDriver'
 
 module Zanox
-  
+
   class ZanoxSoap < ZanoxBase
-    
+
     attr_accessor :service, :wsdl, :soap
-    
+
     def initialize
       @service = 'publisherservice'
       @wsdl = 'http://api.zanox.com/wsdl'
       @soap = false
     end
-    
+
+    def get_session(auth_token)
+       @service = 'ConnectService'
+       @wsdl = 'https://auth.zanox-affiliate.de/wsdl'
+       method = 'GetSession'
+       enable_api_security
+
+       nonce = generate_nonce()
+
+       params = {'authToken' => auth_token,
+          'publicKey' => @public_key,
+          'nonce' => nonce,
+       }
+
+       if result = send_request(method, params)
+          return result
+       end
+
+       return false
+
+    end
+
     def get_adspaces
       method = 'GetAdspaces'
-        
+
       enable_api_security
 
-      if result = send_request(method) 
+      if result = send_request(method)
         return result
       end
 
       return false
     end
-    
+
     def get_adspace(adspace_id)
       method = 'GetAdspace'
-        
+
       params = {'adspaceId' => adspace_id.to_s }
-      
+
       enable_api_security
-      
-      if result = send_request(method, params) 
+
+      if result = send_request(method, params)
         return result
       end
 
-      return false      
+      return false
     end
-    
+
 #    def create_adspace(adspace_item, lang = 'en')#FIXME
 #      method = 'CreateAdspace'
 #    end
-#    
+#
 #    def update_adspace(adspace_id, adspace_item)#FIXME
 #      method = 'UpdateAdspace'
 #    end
-    
+
     def delete_adspace(adspace_id)
       method = 'DeleteAdspace'
-      
+
       params = { 'adspaceId' => adspace_id.to_s }
-      
+
       enable_api_security
-      
-      if send_request(method, params) 
+
+      if send_request(method, params)
         return true
       end
 
-      return false     
+      return false
     end
-    
+
     def get_program(program_id)
       method = 'GetProgram'
-        
+
       params = { 'programId' => program_id.to_s }
 
       disable_api_security
@@ -76,30 +97,30 @@ module Zanox
 
     def get_programs(category_id = false, page = 0, items = 10)
       method = 'GetPrograms'
-      
+
       params = {
         'page' => page,
         'items' => items,
         'adspaceId' => 0,
         'categoryId' => 0
       }
-      
+
       if ( category_id )
         params['categoryId'] = category_id.to_s
       end
 
       disable_api_security
-        
+
       if  result = send_request(method, params)
         return result
       end
 
-      return false          	
+      return false
     end
-    
+
     def search_programs(q, page = 0, items = 10)
       method = 'SearchPrograms'
-        
+
       params = {
         'query' => q,
         'page' =>  page,
@@ -113,9 +134,9 @@ module Zanox
         return result
       end
 
-      return false          
+      return false
     end
-    
+
     def get_program_news
       method = 'GetProgramPromotions'
 
@@ -125,24 +146,24 @@ module Zanox
         return result
       end
 
-      return false 
+      return false
     end
-    
+
     def get_program_categories
       method = 'GetProgramCategories'
-      
+
       disable_api_security
 
       if  result = send_request(method)
         return result
       end
 
-      return false 
+      return false
     end
-    
+
     def get_programs_by_adspace(adspace_id, page = 0, items = 10)
       method = 'GetPrograms'
-        
+
       params = {
         'page' => page,
         'items' => items,
@@ -156,18 +177,18 @@ module Zanox
         return result
       end
 
-      return false        
+      return false
     end
-    
+
 #    def create_program_application(program_id, adspace_id)#FIXME
 #      method = 'CreateProgramApplication'
 #    end
-    
+
     def delete_program_application(program_id, adspace_id)#TODO test
       method = 'DeleteProgramApplication'
-        
-      params = { 
-        'programId' => program_id.to_s, 
+
+      params = {
+        'programId' => program_id.to_s,
         'adspaceId' => adspace_id.to_s
       }
 
@@ -177,12 +198,12 @@ module Zanox
           return true
       end
 
-      return false     
+      return false
     end
-    
+
     def get_product(zup_id)
       method = 'GetProduct'
-        
+
       params = {'zupId' => zup_id.to_s }
 
       disable_api_security
@@ -191,79 +212,79 @@ module Zanox
         return result
       end
 
-      return false  
+      return false
     end
-    
+
     def get_products_by_program(program_id, filter = {}, page = 0, items = 10)
       method = 'GetProducts'
-        
-      params = { 
+
+      params = {
         'programId' => program_id.to_s,
         'page' => page,
         'items' => items,
         'adspaceId' => 0
-      } 
-
-      if ( !filter['adspace'].blank? )
-        params['adspaceId'] = filter['adspace']     
-      end
-      
-      if ( !filter['modified'].blank? )
-        params['modifiedDate'] = filter['modified']     
-      end       
-
-      disable_api_security
-
-      if  result = send_request(method, params)
-        return result
-      end
-
-      return false    
-    end
-    
-    def search_products(q, filter = {}, page = 0, items = 10)
-      method = 'SearchProducts'
-        
-      params = {
-        'query' => q, 
-        'page' => page,
-        'items' => items,
-        'adspaceId' => 0 
       }
 
       if ( !filter['adspace'].blank? )
-        params['adspaceId'] = filter['adspace']     
-      end  
-
-      if ( !filter['region'].blank? &&  filter['region'].size == 2)
-        params['region'] = filter['region']     
-      end  
-      
-      if ( !filter['minprice'].blank? )
-        params['minPrice'] = filter['minprice']     
-      end 
-      
-      if ( !filter['maxprice'].blank? )
-        params['maxPrice'] = filter['maxprice']     
-      end 
-
-      if ( !filter['ip'].blank? )
-        params['ipAddress'] = filter['ip']     
+        params['adspaceId'] = filter['adspace']
       end
-      
+
+      if ( !filter['modified'].blank? )
+        params['modifiedDate'] = filter['modified']
+      end
+
       disable_api_security
 
       if  result = send_request(method, params)
         return result
       end
 
-      return false    
+      return false
     end
-    
+
+    def search_products(q, filter = {}, page = 0, items = 10)
+      method = 'SearchProducts'
+
+      params = {
+        'query' => q,
+        'page' => page,
+        'items' => items,
+        'adspaceId' => 0
+      }
+
+      if ( !filter['adspace'].blank? )
+        params['adspaceId'] = filter['adspace']
+      end
+
+      if ( !filter['region'].blank? &&  filter['region'].size == 2)
+        params['region'] = filter['region']
+      end
+
+      if ( !filter['minprice'].blank? )
+        params['minPrice'] = filter['minprice']
+      end
+
+      if ( !filter['maxprice'].blank? )
+        params['maxPrice'] = filter['maxprice']
+      end
+
+      if ( !filter['ip'].blank? )
+        params['ipAddress'] = filter['ip']
+      end
+
+      disable_api_security
+
+      if  result = send_request(method, params)
+        return result
+      end
+
+      return false
+    end
+
     def get_admedium(admedium_id)
       method = 'GetAdmedium'
-        
-      params = { 
+
+      params = {
         'admediaId' => admedium_id.to_s,
         'adspaceId' => 0
       }
@@ -274,46 +295,46 @@ module Zanox
         return result
       end
 
-      return false   
+      return false
     end
-    
+
     def get_admedia_by_program(program_id, filter = {}, page = 0, items = 10)
       method = 'GetAdmedia'
-      
-      params = { 
-        'programId' => program_id.to_s, 
+
+      params = {
+        'programId' => program_id.to_s,
         'page' => page,
         'items' => items,
         'categoryId' => 0,
         'type' => 0,
-        'format' => 0,   
+        'format' => 0,
         'adspaceId' => 0
       }
-      
+
       if ( !filter['adspace'].blank? )
-        params['adspaceId'] = filter['adspace']     
+        params['adspaceId'] = filter['adspace']
       end
 
       if ( !filter['category'].blank? )
-        params['goryId'] = filter['category']     
+        params['goryId'] = filter['category']
       end
 
       if ( !filter['type'].blank? )
-        params['type'] = filter['type']     
+        params['type'] = filter['type']
       end
-      
+
       disable_api_security
 
       if  result = send_request(method, params)
         return result
       end
 
-      return false   
+      return false
     end
-    
+
     def get_admedia_categories_by_program(program_id)
       method = 'GetAdmediumCategories'
-        
+
       params = { 'programId' => program_id.to_s }
 
       disable_api_security
@@ -322,56 +343,27 @@ module Zanox
         return result
       end
 
-      return false   
+      return false
     end
-    
+
     def get_sales(filter = {}, page = 0, items = 10)
       method = 'GetSales'
-        
-      params = { 
-        'page' => page,
-        'items' => items
-      }
 
-      if ( !filter['date'].blank? )
-        params['date'] = filter['date']     
-      end
-      
-      if ( !filter['modifieddate'].blank? )
-        params['modifieddate'] = filter['modifieddate']     
-      end
-      
-      if ( !filter['clickdate'].blank? )
-        params['clickdate'] = filter['clickdate']     
-      end
-
-      enable_api_security
-
-      if  result = send_request(method, params)
-        return result
-      end
-
-      return false  
-    end
-    
-    def get_leads(filter = {}, page = 0, items = 10)
-      method = 'GetLeads'
-        
       params = {
         'page' => page,
         'items' => items
       }
 
       if ( !filter['date'].blank? )
-        params['date'] = filter['date']     
+        params['date'] = filter['date']
       end
-      
+
       if ( !filter['modifieddate'].blank? )
-        params['modifieddate'] = filter['modifieddate']     
+        params['modifieddate'] = filter['modifieddate']
       end
-      
+
       if ( !filter['clickdate'].blank? )
-        params['clickdate'] = filter['clickdate']     
+        params['clickdate'] = filter['clickdate']
       end
 
       enable_api_security
@@ -380,13 +372,42 @@ module Zanox
         return result
       end
 
-      return false    
+      return false
     end
-    
+
+    def get_leads(filter = {}, page = 0, items = 10)
+      method = 'GetLeads'
+
+      params = {
+        'page' => page,
+        'items' => items
+      }
+
+      if ( !filter['date'].blank? )
+        params['date'] = filter['date']
+      end
+
+      if ( !filter['modifieddate'].blank? )
+        params['modifieddate'] = filter['modifieddate']
+      end
+
+      if ( !filter['clickdate'].blank? )
+        params['clickdate'] = filter['clickdate']
+      end
+
+      enable_api_security
+
+      if  result = send_request(method, params)
+        return result
+      end
+
+      return false
+    end
+
     def get_payments(page = 0, items = 10)
       method = 'GetPayments'
-        
-      params = { 
+
+      params = {
         'page' => page,
         'items' => items
       }
@@ -397,18 +418,18 @@ module Zanox
         return result
       end
 
-      return false  
+      return false
     end
-    
+
     def get_payment(payment_id)
       method = 'GetPayments'
-        
+
       params = { 'paymentId' => payment_id.to_s }
 
-      #just has to be set to false to work around the bug 
-      # 3 lines can be removed after fixing        
+      #just has to be set to false to work around the bug
+      # 3 lines can be removed after fixing
       params['page'] = page
-      params['items'] = items      
+      params['items'] = items
 
       enable_api_security
 
@@ -416,24 +437,24 @@ module Zanox
         return result
       end
 
-      return false         
+      return false
     end
-    
+
     def get_balances
       method = 'GetBalances'
-        
+
       enable_api_security
 
       if  result = send_request(method)
         return result
       end
 
-      return false     
+      return false
     end
-    
+
     def get_balance(currency_code)
       method = 'GetBalances'
-        
+
       params = { 'currency' => currency_code }
 
       enable_api_security
@@ -442,24 +463,24 @@ module Zanox
         return result
       end
 
-      return false        
+      return false
     end
-    
+
     def get_accounts
       method = 'GetAccounts'
-        
+
       enable_api_security
 
       if  result = send_request(method)
         return result
       end
 
-      return false       
+      return false
     end
-    
+
     def get_account(account_id)
       method = 'GetAccounts'
-        
+
       params = { 'accountId' => account_id }
 
       enable_api_security
@@ -468,78 +489,83 @@ module Zanox
         return result
       end
 
-      return false    
+      return false
     end
-    
+
     def get_profile
       method = 'GetProfile'
-        
+
       enable_api_security
 
       if  result = send_request(method)
         return result
       end
 
-      return false   
+      return false
     end
-    
+
 #    def update_profile(profile_item)#FIXME
 #      method = 'UpdateProfile'
 #    end
-    
+
     def get_timestamp
-      timestamp = Time.now.gmtime 
+      timestamp = Time.now.gmtime
       timestamp = timestamp.strftime("%Y-%m-%dT%H:%M:%S.000Z")
       timestamp.to_s
     end
-    
+
     def send_request(method, params = {})
-      params['applicationId'] = @application_id
+       #params['applicationId'] = @application_id
+       nonce = params['nonce'] ? params['nonce'] : nil
+       timestamp = get_timestamp
 
       if @api_security
-        params['timestamp'] = get_timestamp
-        params['signature'] = build_signature(method)
+        params['timestamp'] = timestamp
+        params['signature'] = build_signature(method, nonce, timestamp)
       end
 
       begin
-        proxy = SOAP::WSDLDriverFactory.new(@wsdl).create_rpc_driver 
-        case method
+         proxy = SOAP::WSDLDriverFactory.new(@wsdl).create_rpc_driver
+         proxy.wiredump_file_base = "log"
+         case method
+         when 'GetSession'
+            res = proxy.getSession(params)
           when 'GetAdspaces'
-            res = proxy.GetAdspaces(params) 
+            res = proxy.GetAdspaces(params)
           when 'GetAdspace'
-            res = proxy.GetAdspace(params) 
+            res = proxy.GetAdspace(params)
           when 'CreateAdspace'
-            res = proxy.CreateAdspace(params) 
+            res = proxy.CreateAdspace(params)
           when 'UpdateAdspace'
-            res = proxy.UpdateAdspace(params) 
+            res = proxy.UpdateAdspace(params)
           when 'DeleteAdspace'
-            res = proxy.DeleteAdspace(params) 
+            res = proxy.DeleteAdspace(params)
           when 'GetProgram'
-            res = proxy.GetProgram(params) 
+            res = proxy.GetProgram(params)
           when 'GetPrograms'
-            res = proxy.GetPrograms(params) 
+            res = proxy.GetPrograms(params)
           when 'SearchPrograms'
-            res = proxy.SearchPrograms(params) 
+            res = proxy.SearchPrograms(params)
           when 'GetProgramPromotions'
-            res = proxy.GetProgramPromotions(params) 
+            res = proxy.GetProgramPromotions(params)
           when 'GetProgramCategories'
-            res = proxy.GetProgramCategories(params) 
+            res = proxy.GetProgramCategories(params)
           when 'CreateProgramApplication'
-            res = proxy.CreateProgramApplication(params) 
+            res = proxy.CreateProgramApplication(params)
           when 'DeleteProgramApplication'
-            res = proxy.DeleteProgramApplication(params) 
+            res = proxy.DeleteProgramApplication(params)
           when 'GetProduct'
-            res = proxy.GetProduct(params) 
+            res = proxy.GetProduct(params)
           when 'GetProducts'
-            res = proxy.GetProducts(params) 
+            res = proxy.GetProducts(params)
           when 'SearchProducts'
-            res = proxy.SearchProducts(params) 
+            res = proxy.SearchProducts(params)
           when 'GetAdmedium'
-            res = proxy.GetAdmedium(params) 
+            res = proxy.GetAdmedium(params)
           when 'GetAdmedia'
-            res = proxy.GetAdmedia(params) 
+            res = proxy.GetAdmedia(params)
           when 'GetAdmediumCategories'
-            res = proxy.GetAdmediumCategories(params) 
+            res = proxy.GetAdmediumCategories(params)
           when 'GetSales'
             res = proxy.GetSales(params)
           when 'GetLeads'
@@ -555,7 +581,7 @@ module Zanox
           when 'UpdateProfile'
             res = proxy.UpdateProfile(params)
         end
-        
+
         return res
       rescue Exception => e
         @last_error_msg = e.to_s
@@ -563,19 +589,20 @@ module Zanox
 
       return false
     end
-    
-    private
-    
-    def build_signature(method)
-      sign = @service + method.downcase + get_timestamp
 
-      if hmac = get_hmac_signature(sign)
+    private
+
+    def build_signature(method, nonce = '', timestamp = get_timestamp)
+      sign = @service + method + timestamp + nonce
+      puts sign
+       if hmac = get_hmac_signature(sign)
+          puts hmac
         return hmac
       end
 
       return false
-    end  
-    
+    end
+
   end
-  
+
 end
