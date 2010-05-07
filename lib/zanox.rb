@@ -41,7 +41,7 @@ module Zanox
       signature = Base64.encode64(HMAC::SHA1.new(secret_key).update(string2sign).digest)[0..-2]
     end
     
-    def self.authenticate(connect_id, secret_key)
+    def self.authenticate(connect_id, secret_key=nil)
       #todo: real session request with connect flow
       @connect_id = connect_id
       @secret_key = secret_key
