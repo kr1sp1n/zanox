@@ -27,9 +27,9 @@ h2. Examples
     end
 
     # request a product by its zupid
-	Zanox::Product.find('b84145a6c81a455c99a90194db15aed3').each do |product|
-	  puts product.id + " : " + product.name
-	end
+    Zanox::Product.find('b84145a6c81a455c99a90194db15aed3').each do |product|
+      puts product.id + " : " + product.name
+    end
 </code></pre>
 
 
