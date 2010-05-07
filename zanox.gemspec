@@ -9,8 +9,8 @@ spec = Gem::Specification.new do |s|
     s.name      =   %q{zanox}
     s.version   =   "0.2"
     s.authors   =   ["Krispin Schulz"]
-    s.homepage  =   %q{http://www.zanox.com/}
-    s.date      =   %q{2010-04-20}
+    s.homepage  =   %q{http://kr1sp1n.com/}
+    s.date      =   %q{2010-05-07}
     s.email     =   %q{krispinone@googlemail.com}
     s.summary   =   %q{One gem to rule the zanox web services.}
     s.description =   %q{The easy way to the zanox web services.}
@@ -23,6 +23,7 @@ spec = Gem::Specification.new do |s|
     s.has_rdoc  =   true
     s.extra_rdoc_files  =   ["README.textile"]
     s.add_dependency("soap4r",">=1.5.8")
+    s.add_dependency("ruby-hmac", ">=0.4.0")
 end
 
 # Rake::GemPackageTask.new(spec) do |pkg|

@@ -1,27 +1,55 @@
 require File.join(File.dirname(__FILE__),"..","lib","zanox.rb")
 
-describe Zanox::API::Client do
+describe Zanox::API do
   
-  TEST_USERNAME = "krispin"
-  TEST_PASSWORD = "test123"
-  TEST_LATEST_API_VERSION = Zanox::API.versions[:latest]
+  # authenticate
+  TEST_CONNECT_ID = "your connect id here"
+  TEST_SECRET_KEY = "your secret key here"
   
   before(:all) do
-    @client = Zanox::API::Client.new
   end
   
-  it "should use the latest Zanox::API version if not specified at initializing" do
-    @client.api_version.should == TEST_LATEST_API_VERSION
+  it "should authenticate a developer" do
+    Zanox::API.authenticate(TEST_CONNECT_ID, TEST_SECRET_KEY).should == true
   end
- 
-  it "should respond to 'login'" do
-    @client.should respond_to(:login)
-  end
- 
-  it "should return username and password after 'login' with 'to_s'" do
-    @client.login(TEST_USERNAME, TEST_PASSWORD)
-    str = @client.to_s
-    str.should == TEST_USERNAME + ', ' + TEST_PASSWORD
+end
+
+describe Zanox::Product do
+  # Product.find
+  TEST_PRODUCT_QUERY = "ipod"
+  TEST_PRODUCT_ID = "afdd090e0ee25e796e5146f6fcd7b15e"
+  
+  it "should find products by a keyword" do
+    Zanox::Product.find(TEST_PRODUCT_QUERY).size.should >= 1
   end
   
+  it "should find a specific product by its id" do
+    Zanox::Product.find(TEST_PRODUCT_ID).size.should == 1
+  end
+end
+
+describe Zanox::Program do
+  # Program.find
+  TEST_PROGRAM_QUERY = "Amazon"
+  TEST_PROGRAM_ID = "1648"
+  
+  it "should find programs by a keyword" do
+    Zanox::Program.find(TEST_PROGRAM_QUERY).size.should >= 1
+  end
+  
+  it "should find a specific program by its id" do
+    Zanox::Program.find(TEST_PROGRAM_ID).size.should == 1
+  end
+end
+
+describe Zanox::Adspace do
+  # Adspace.find
+  TEST_ADSPACE_ID = "1289612"
+  
+  it "should find all user's Adspaces" do
+    Zanox::Adspace.find(:all).size.should >=1
+  end
+  it "should find the users Adspace by an id" do
+    Zanox::Adspace.find(TEST_ADSPACE_ID).size.should == 1
+  end
 end
