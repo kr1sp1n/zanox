@@ -7,7 +7,7 @@ require 'rake'
 spec = Gem::Specification.new do |s|
     s.platform  =   Gem::Platform::RUBY
     s.name      =   %q{zanox}
-    s.version   =   "0.2.0"
+    s.version   =   "0.2.1"
     s.authors   =   ["Krispin Schulz"]
     s.homepage  =   %q{http://kr1sp1n.com/}
     s.date      =   %q{2010-05-07}

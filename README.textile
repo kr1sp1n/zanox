@@ -25,6 +25,11 @@ h2. Examples
     Zanox::Product.find('ipod').each do |product|
       puts product.id + " : " + product.name
     end
+
+    # request a product by its zupid
+	Zanox::Product.find('b84145a6c81a455c99a90194db15aed3').each do |product|
+	  puts product.id + " : " + product.name
+	end
 </code></pre>
 
 

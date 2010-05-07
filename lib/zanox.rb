@@ -66,11 +66,13 @@ module Zanox
       items = []
       class_name = self.name.split('::').last  
       api_method = 'get'+self.pluralize
-      timestamp = Zanox::API.get_timestamp
-      nonce = Zanox::API.generate_nonce
+      unless Zanox::API.secret_key.nil?
+        timestamp = Zanox::API.get_timestamp
+        nonce = Zanox::API.generate_nonce
       
-      signature = Zanox::API.create_signature(Zanox::API.secret_key, "publisherservice"+api_method.downcase + timestamp + nonce)
-      options.merge!(:timestamp=>timestamp, :nonce=>nonce, :signature=>signature)
+        signature = Zanox::API.create_signature(Zanox::API.secret_key, "publisherservice"+api_method.downcase + timestamp + nonce)
+        options.merge!(:timestamp=>timestamp, :nonce=>nonce, :signature=>signature)
+      end
       
       response = Zanox::API.request(api_method, options)
       
@@ -106,14 +108,16 @@ module Zanox
 
       class_name = self.name.split('::').last
       api_method = ''
-      timestamp = Zanox::API.get_timestamp
-      nonce = Zanox::API.generate_nonce
 
       if(ids.size>0)
         api_method = 'get'+class_name.capitalize
-        signature = Zanox::API.create_signature(Zanox::API.secret_key, "publisherservice"+api_method.downcase + timestamp + nonce)
-        options.merge!(:timestamp=>timestamp, :nonce=>nonce, :signature=>signature)
-
+        unless Zanox::API.secret_key.nil?
+          timestamp = Zanox::API.get_timestamp
+          nonce = Zanox::API.generate_nonce
+          signature = Zanox::API.create_signature(Zanox::API.secret_key, "publisherservice"+api_method.downcase + timestamp + nonce)
+          options.merge!(:timestamp=>timestamp, :nonce=>nonce, :signature=>signature)
+        end
+        
         ids.each do |id|
           options.merge!(self.key_symbol=>id)
           response = Zanox::API.request(api_method, options)
