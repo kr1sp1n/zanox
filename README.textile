@@ -14,6 +14,7 @@ h2. Getting started
 
 h2. Examples
 
+<pre><code>
     require 'rubygems'
     require 'zanox'
     
@@ -24,6 +25,7 @@ h2. Examples
     Zanox::Product.find('ipod').each do |product|
       puts product.id + " : " + product.name
     end
+</code></pre>
 
 
 
