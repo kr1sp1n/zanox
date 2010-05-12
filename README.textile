@@ -32,5 +32,7 @@ h2. Examples
     end
 </code></pre>
 
+For more code snippets look at the files in the examples dir.
+
 
 
