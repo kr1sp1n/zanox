@@ -7,10 +7,10 @@ require 'rake'
 spec = Gem::Specification.new do |s|
     s.platform  =   Gem::Platform::RUBY
     s.name      =   %q{zanox}
-    s.version   =   "0.2.1"
+    s.version   =   "0.2.2"
     s.authors   =   ["Krispin Schulz"]
-    s.homepage  =   %q{http://kr1sp1n.com/}
-    s.date      =   %q{2010-05-07}
+    s.homepage  =   %q{http://github.com/kr1sp1n/zanox}
+    s.date      =   %q{2010-05-12}
     s.email     =   %q{krispinone@googlemail.com}
     s.summary   =   %q{One gem to rule the zanox web services.}
     s.description =   %q{The easy way to the zanox web services.}
