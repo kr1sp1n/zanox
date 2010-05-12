@@ -15,6 +15,9 @@ end
 programs = Zanox::Program.find('amazon')
 # or find specific zanox programs by id
 #programs = Zanox::Program.find(1648)
+# or find programs that are registered with one of your Adspaces
+# programs = Zanox::Program.find(:adspaceId => '1289612')
+
 puts "\nFound zanox Programs:\n"
 programs.each do |program|
   puts program.name

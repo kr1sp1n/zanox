@@ -34,7 +34,7 @@ module Zanox
     end
     
     def self.get_timestamp
-      Time.new.gmtime.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+      Time.new.gmtime.strftime("%Y-%m-%dT%H:%M:%S.000Z").to_s
     end
     
     def self.create_signature(secret_key, string2sign)
@@ -66,6 +66,11 @@ module Zanox
       items = []
       class_name = self.name.split('::').last  
       api_method = 'get'+self.pluralize
+      
+      if(class_name=='Program' && options.has_key?(:adspaceId))
+        api_method = "getProgramsByAdspace"
+      end
+      
       unless Zanox::API.secret_key.nil?
         timestamp = Zanox::API.get_timestamp
         nonce = Zanox::API.generate_nonce
