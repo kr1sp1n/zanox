@@ -16,13 +16,14 @@ h2. Features
 
 Supported zanox API methods:
 
-* getProgram			- Zanox::Program.find('the program id here')
-* getProgramsByAdspace	- Zanox::Program.find(:adspaceId => 'your adspace id here')
-* searchPrograms		- Zanox::Program.find('amazon', :region=>'de')
-* getProduct			- Zanox::Product.find('the zupid of the product here')
-* getProducts			- Zanox::Product.find(:programId=>'program id is required here', :adspaceId=>'your adspace id here')
-* searchProducts		- Zanox::Product.find('ipad', :region=>'de', :programId=>'a program id here')
-* getSales				- Zanox::Sale.find(:date=>'2010-03-02T00:00:00', :dateType=>'trackingDate')
+|*zanox API method*|*the ruby way*|
+| getProgram | Zanox::Program.find('the program id here') |
+| getProgramsByAdspace | Zanox::Program.find(:adspaceId => 'your adspace id here') |
+| searchPrograms | Zanox::Program.find('amazon', :region=>'de') |
+| getProduct | Zanox::Product.find('the zupid of the product here') |
+| getProducts | Zanox::Product.find(:programId=>'program id is required here', :adspaceId=>'your adspace id here') |
+| searchProducts | Zanox::Product.find('ipad', :region=>'de', :programId=>'a program id here') |
+| getSales | Zanox::Sale.find(:date=>'2010-03-02T00:00:00', :dateType=>'trackingDate') |
 
 h2. Examples
 
