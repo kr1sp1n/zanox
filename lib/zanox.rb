@@ -20,8 +20,8 @@ module Zanox
       
       raise AuthError, "Missing connect id. Try calling Zanox::API.authenticate('your connect id', 'your secret key') before your requests", caller[caller.length - 1] if !!options[:connect_id]
       
-      wsdl = 'http://api.zanox.com/wsdl/2009-07-01/' unless !!wsdl
-      $driver = SOAP::WSDLDriverFactory.new(wsdl).create_rpc_driver unless !!$driver
+      @wsdl = 'http://api.zanox.com/wsdl/2009-07-01/' unless !!@wsdl
+      $driver = SOAP::WSDLDriverFactory.new(@wsdl).create_rpc_driver unless !!$driver
       $driver.wiredump_dev = STDOUT if $DEBUG
       $driver.options['protocol.http.ssl_config.verify_mode'] = OpenSSL::SSL::VERIFY_NONE if $DEBUG
       $driver.method(method.to_sym).call(options)
@@ -58,17 +58,17 @@ module Zanox
 
     def new(item=nil)
       item.extend(self)
-      item.id= item.xmlattr_id 
+      item.id= item.xmlattr_id
       return item
     end
     
     def find_every(options)
       items = []
-      class_name = self.name.split('::').last  
+      class_name = self.name.split('::').last
       api_method = 'get'+self.pluralize
       
       if(class_name=='Program' && options.has_key?(:adspaceId))
-        api_method = "getProgramsByAdspace"
+        api_method = "getProgramApplications"
       end
       
       unless Zanox::API.secret_key.nil?
@@ -81,10 +81,12 @@ module Zanox
       
       response = Zanox::API.request(api_method, options)
       
-      m1_name = (class_name.downcase+'Items').to_sym
-      m2_name = (class_name.downcase+'Item').to_sym
-                  
-      if(response.respond_to?(m1_name))
+      class_name.sub!(/\b\w/) { $&.downcase }
+      
+      m1_name = (class_name+'Items').to_sym
+      m2_name = (class_name+'Item').to_sym
+      
+      if(response.respond_to?(m1_name) && response.items!=0)
         items_object = response.method(m1_name).call
         if(items_object.respond_to?(m2_name))
           item_object = items_object.method(m2_name).call
@@ -97,7 +99,13 @@ module Zanox
             items.push self.new(item)
           end
         end
+      else
+        # found nothing handling
+        #return items
       end
+      
+      return items
+      
     end
     
     def find_other(args, options)
@@ -115,7 +123,7 @@ module Zanox
       api_method = ''
 
       if(ids.size>0)
-        api_method = 'get'+class_name.capitalize
+        api_method = 'get'+class_name
         unless Zanox::API.secret_key.nil?
           timestamp = Zanox::API.get_timestamp
           nonce = Zanox::API.generate_nonce
@@ -126,19 +134,20 @@ module Zanox
         ids.each do |id|
           options.merge!(self.key_symbol=>id)
           response = Zanox::API.request(api_method, options)
-          item = self.new(response.method((class_name.downcase+'Item').to_sym).call)
+          class_name.sub!(/\b\w/) { $&.downcase }
+          item = self.new(response.method((class_name+'Item').to_sym).call)
           items.push item
         end
       end
 
       if(queries.size>0)
         api_method = 'search'+self.pluralize
-
+        class_name.sub!(/\b\w/) { $&.downcase }
         queries.each do |query|
           options.merge!(:query=>query)
           response = Zanox::API.request(api_method, options)
-          m1_name = (class_name.downcase+'Items').to_sym
-          m2_name = (class_name.downcase+'Item').to_sym
+          m1_name = (class_name+'Items').to_sym
+          m2_name = (class_name+'Item').to_sym
 
           if(response.respond_to?(m1_name))
             items_object = response.method(m1_name).call
@@ -157,7 +166,7 @@ module Zanox
         end
       end
       
-      items
+      return items
     end
     
     def find(*args)
@@ -189,7 +198,7 @@ module Zanox
     end
     
     def self.is_key?(id)
-      id.to_s[/[0-9]{3,6}/] ? true : false
+      id.to_s[/^[0-9]{2,8}$/] ? true : false
     end
   end
   
@@ -206,7 +215,7 @@ module Zanox
     end
     
     def self.is_key?(id)
-      id.to_s[/[0-9]{3,6}/] ? true : false
+      id.to_s[/^[0-9]{2,10}$/] ? true : false
     end
   end
   
@@ -257,7 +266,7 @@ module Zanox
     end
     
     def self.is_key?(id)
-      id.to_s[/[0-9]/] ? true : false
+      id.to_s[/[0-9a-f]+[-]{1}[0-9a-f]+[-]{1}[0-9a-f]+[-]{1}[0-9a-f]+[-]{1}[0-9a-f]+/] ? true : false
     end
   end
   
@@ -275,6 +284,23 @@ module Zanox
     
     def self.is_key?(id)
       id.to_s[/[0-9]/] ? true : false
+    end
+  end
+  
+  module MediaSlot
+    include Item
+    extend  Item
+    
+    def self.key_symbol
+      :mediaSlotId
+    end
+    
+    def self.pluralize
+      "MediaSlots"
+    end
+    
+    def self.is_key?(id)
+      id.to_s[/[0-9A-Fa-f]{20}/] ? true : false
     end
   end
   

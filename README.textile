@@ -47,5 +47,9 @@ h2. Examples
 
 For more code snippets look at the files in the examples dir.
 
+h2. License
+
+Published under a <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">Creative Commons</a> license.
+
 
 
