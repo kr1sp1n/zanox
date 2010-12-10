@@ -1,11 +1,6 @@
 require File.join(File.dirname(__FILE__),"..","lib","zanox.rb")
 
-$DEBUG = true
-
-Zanox::API.wsdl = "http://t-wdw-01.zanox.com/api/wsdl/2010-07-01/publisher.wsdl"
-Zanox::API.authenticate('80CC6774346A37AEE51B', 'beaFdE2e855842+CA3cd163a4EB3f1/a7002eb43')
-
-#Zanox::API.authenticate('A1853B8432094AA86075', '6b627cc49DB045+887b642848F722b/59f09b749')
+Zanox::API.authenticate('your connect id here', 'your secret key here')
 
 def show(items, *args)
   puts "\nFound items: "+items.size.to_s+"\n"

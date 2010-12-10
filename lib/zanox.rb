@@ -249,7 +249,7 @@ module Zanox
     end
     
     def self.is_key?(id)
-      id.to_s[/[0-9]/] ? true : false
+      id.to_s[/^[0-9]{2,10}$/] ? true : false
     end
   end
   
@@ -283,7 +283,7 @@ module Zanox
     end
     
     def self.is_key?(id)
-      id.to_s[/[0-9]/] ? true : false
+      id.to_s[/[0-9a-f]+[-]{1}[0-9a-f]+[-]{1}[0-9a-f]+[-]{1}[0-9a-f]+[-]{1}[0-9a-f]+/] ? true : false
     end
   end
   

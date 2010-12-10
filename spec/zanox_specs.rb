@@ -3,8 +3,8 @@ require File.join(File.dirname(__FILE__),"..","lib","zanox.rb")
 describe Zanox::API do
   
   # authenticate
-  TEST_CONNECT_ID = "80CC6774346A37AEE51B"
-  TEST_SECRET_KEY = "beaFdE2e855842+CA3cd163a4EB3f1/a7002eb43"
+  TEST_CONNECT_ID = "your connect id here"
+  TEST_SECRET_KEY = "your secret key here"
   
   before(:all) do
   end
