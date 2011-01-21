@@ -3,12 +3,13 @@
 # #Gem.manage_gems
 # require 'rake/gempackagetask'
 require 'rubygems'
+gem 'rake'
 require 'rake'
 
 spec = Gem::Specification.new do |s|
     s.platform  =   Gem::Platform::RUBY
     s.name      =   %q{zanox}
-    s.version   =   "0.2.4"
+    s.version   =   "0.2.5"
     s.authors   =   ["Krispin Schulz"]
     s.homepage  =   %q{http://github.com/kr1sp1n/zanox}
     s.date      =   Time.now.strftime("%Y-%m-%d")
