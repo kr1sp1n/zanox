@@ -1,6 +1,8 @@
 # Can ignore specific files
 .DS_Store
 credentials.txt
+pkg/
+.rvmrc
 
 # Ignore all dotfiles...
 .*

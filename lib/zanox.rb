@@ -9,22 +9,36 @@ module Zanox
     
     class AuthError < ArgumentError; end
     
-    attr_accessor :connect_id
+    attr_accessor :public_key
     attr_accessor :secret_key
     attr_accessor :wsdl
+    attr_accessor :driver
     
     def self.request(method, options)
-      puts method + " " + options.inspect if $DEBUG
+      begin
+        puts method + " " + options.inspect if $DEBUG
       
-      options.merge!(:connectId=>Zanox::API.connect_id)
+        options.merge!(:connectId=>Zanox::API::Session.connect_id)
       
-      raise AuthError, "Missing connect id. Try calling Zanox::API.authenticate('your connect id', 'your secret key') before your requests", caller[caller.length - 1] if !!options[:connect_id]
+        #raise AuthError, "Missing connect id. Try calling Zanox::API.authenticate('your connect id', 'your secret key') before your requests", caller[caller.length - 1] if !!options[:connect_id]
       
-      @wsdl = 'http://api.zanox.com/wsdl/2009-07-01/' unless !!@wsdl
-      $driver = SOAP::WSDLDriverFactory.new(@wsdl).create_rpc_driver unless !!$driver
-      $driver.wiredump_dev = STDOUT if $DEBUG
-      $driver.options['protocol.http.ssl_config.verify_mode'] = OpenSSL::SSL::VERIFY_NONE if $DEBUG
-      $driver.method(method.to_sym).call(options)
+        unless Zanox::API::Session.secret_key.nil?
+          timestamp = Zanox::API.get_timestamp
+          nonce = Zanox::API.generate_nonce
+          signature = Zanox::API.create_signature(Zanox::API::Session.secret_key, "publisherservice"+method.downcase + timestamp + nonce)
+          options.merge!(:timestamp=>timestamp, :nonce=>nonce, :signature=>signature)
+        end
+      
+        @wsdl = 'http://api.zanox.com/wsdl/2009-07-01/' unless !!@wsdl
+        @driver = SOAP::WSDLDriverFactory.new(@wsdl).create_rpc_driver unless !!@driver
+        @driver.wiredump_dev = STDOUT if $DEBUG
+        @driver.options['protocol.http.ssl_config.verify_mode'] = OpenSSL::SSL::VERIFY_NONE if $DEBUG
+        @driver.method(method.to_sym).call(options)
+      rescue Exception => e
+        puts
+        puts "ERROR"
+        puts e.message
+      end
     end
     
     def self.generate_nonce
@@ -41,11 +55,87 @@ module Zanox
       signature = Base64.encode64(HMAC::SHA1.new(secret_key).update(string2sign).digest)[0..-2]
     end
     
+    def self.authorize(public_key, secret_key)
+      @public_key = public_key
+      @secret_key = secret_key
+      true
+    end
+    
     def self.authenticate(connect_id, secret_key=nil)
       #todo: real session request with connect flow
       @connect_id = connect_id
       @secret_key = secret_key
       true
+    end
+    
+    module Session
+      attr_accessor :connect_id
+      attr_accessor :secret_key
+      attr_accessor :offline_token
+      
+      def self.new(auth_token)
+        response = Zanox::Connect.request("getSession", {:authToken=>auth_token})
+        self.map(response)
+      end
+      
+      def self.offline(offline_token)
+        response = Zanox::Connect.request("getOfflineSession", {:offlineToken=>offline_token})
+        self.map(response)
+        if(response.respond_to?(:session))
+          response.session
+        else
+          {:error=>"error!!! offline session"}
+        end
+      end
+      
+      def map(response)
+        if(response.respond_to?(:session))
+          @connect_id = response.session.connectId
+          @secret_key = response.session.secretKey
+          @offline_token = response.session.offlineToken
+          true
+        else
+          false
+        end
+      end
+      
+      self.instance_methods.each do |method|
+         module_function method.to_sym
+      end
+      
+    end
+    
+    self.instance_methods.each do |method|
+       module_function method.to_sym
+    end
+    
+  end
+  
+  module Connect
+    attr_accessor :wsdl
+    attr_accessor :driver
+    
+    def self.request(method, options)
+      begin
+        options.merge!(:publicKey=>Zanox::API.public_key)
+      
+        unless Zanox::API.secret_key.nil?
+          timestamp = Zanox::API.get_timestamp
+          nonce = Zanox::API.generate_nonce
+          signature = Zanox::API.create_signature(Zanox::API.secret_key, "connectservice"+method.downcase + timestamp + nonce)
+          options.merge!(:timestamp=>timestamp, :nonce=>nonce, :signature=>signature)
+        end
+      
+        @wsdl = 'https://auth.zanox-affiliate.de/wsdl/2010-02-01' unless !!@wsdl
+        @driver = SOAP::WSDLDriverFactory.new(@wsdl).create_rpc_driver unless !!@driver
+        @driver.wiredump_dev = STDOUT if $DEBUG
+        @driver.options['protocol.http.ssl_config.verify_mode'] = OpenSSL::SSL::VERIFY_NONE if $DEBUG
+        @driver.method(method.to_sym).call(options)
+      rescue Exception => e
+        puts
+        puts "ERROR"
+        puts e.message
+      end
     end
     
     self.instance_methods.each do |method|
@@ -65,18 +155,13 @@ module Zanox
     def find_every(options)
       items = []
       class_name = self.name.split('::').last
-      api_method = 'get'+self.pluralize
       
-      if(class_name=='Program' && options.has_key?(:adspaceId))
-        api_method = "getProgramApplications"
+      if(self.respond_to?(:pluralize))
+        api_method = 'get'+self.pluralize
       end
       
-      unless Zanox::API.secret_key.nil?
-        timestamp = Zanox::API.get_timestamp
-        nonce = Zanox::API.generate_nonce
-      
-        signature = Zanox::API.create_signature(Zanox::API.secret_key, "publisherservice"+api_method.downcase + timestamp + nonce)
-        options.merge!(:timestamp=>timestamp, :nonce=>nonce, :signature=>signature)
+      if(class_name=='Program' && options.has_key?(:adspaceId))
+        api_method = "getProgramsByAdspace"
       end
       
       response = Zanox::API.request(api_method, options)
@@ -122,21 +207,35 @@ module Zanox
       class_name = self.name.split('::').last
       api_method = ''
 
-      if(ids.size>0)
+      if(ids.size==0 && queries.size==0)
         api_method = 'get'+class_name
         unless Zanox::API.secret_key.nil?
-          timestamp = Zanox::API.get_timestamp
-          nonce = Zanox::API.generate_nonce
-          signature = Zanox::API.create_signature(Zanox::API.secret_key, "publisherservice"+api_method.downcase + timestamp + nonce)
-          options.merge!(:timestamp=>timestamp, :nonce=>nonce, :signature=>signature)
+          response = Zanox::API.request(api_method, options)
+          class_name.sub!(/\b\w/) { $&.downcase }
+          item_method = (class_name+'Item').to_sym
+          if(response.respond_to?(item_method))
+            item = self.new(response.method(item_method).call)
+            items.push item
+          end
         end
+        
+      end
+
+      if(ids.size>0)
+        
+        api_method = 'get'+class_name
         
         ids.each do |id|
           options.merge!(self.key_symbol=>id)
           response = Zanox::API.request(api_method, options)
+          
           class_name.sub!(/\b\w/) { $&.downcase }
-          item = self.new(response.method((class_name+'Item').to_sym).call)
-          items.push item
+          item_method = (class_name+'Item').to_sym
+          
+          if(response.respond_to?(item_method))
+            item = self.new(response.method(item_method).call)
+            items.push item
+          end
         end
       end
 
@@ -170,19 +269,28 @@ module Zanox
     end
     
     def find(*args)
-      
+      item_name = self.name.split('::').last
       options = args.last.is_a?(Hash) ? args.pop : {}
       
       puts "Arguments: " + args.inspect if $DEBUG
       puts "Options: " + options.inspect if $DEBUG
       
-      case args.first
-        when :all then find_every(options)
-        when nil  then find_every(options)
-        else           find_other(args, options)
+      if(item_name=="Profile")
+        find_other(args, options)
+      else
+        case args.first
+          when :all then find_every(options)
+          when nil  then find_every(options)
+          else           find_other(args, options)
+        end
       end
       
     end
+  end
+  
+  module Profile
+    include Item
+    extend  Item
   end
   
   module Program
@@ -198,7 +306,7 @@ module Zanox
     end
     
     def self.is_key?(id)
-      id.to_s[/^[0-9]{2,8}$/] ? true : false
+      id.to_s[/^[0-9]{1,8}$/] ? true : false
     end
   end
   

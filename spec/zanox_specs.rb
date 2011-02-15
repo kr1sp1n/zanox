@@ -2,15 +2,33 @@ require File.join(File.dirname(__FILE__),"..","lib","zanox.rb")
 
 describe Zanox::API do
   
-  # authenticate
-  TEST_CONNECT_ID = "your connect id here"
+  TEST_PUBLIC_KEY = "your public key here"
   TEST_SECRET_KEY = "your secret key here"
   
   before(:all) do
   end
   
-  it "should authenticate a developer" do
-    Zanox::API.authenticate(TEST_CONNECT_ID, TEST_SECRET_KEY).should == true
+  it "should authorize a developer's application" do
+    Zanox::API.authorize(TEST_PUBLIC_KEY, TEST_SECRET_KEY).should == true
+  end
+end
+
+describe Zanox::API::Session do
+  it "should get a new session" do
+    TEST_AUTH_TOKEN = "your auth token here"
+    Zanox::API::Session.new(TEST_AUTH_TOKEN).should == true
+  end
+  it "should get a new offline session" do
+    TEST_OFFLINE_TOKEN = "your offline token here"
+    TEST_CONNECT_ID = "publisher connect id here"
+    Zanox::API::Session.offline(TEST_OFFLINE_TOKEN)
+    Zanox::API::Session.connect_id.should == TEST_CONNECT_ID
+  end
+end
+
+describe Zanox::Profile do
+  it "should find the users profile" do
+    Zanox::Profile.find.size.should == 1
   end
 end
 
@@ -42,15 +60,14 @@ describe Zanox::Program do
     Zanox::Program.find(TEST_PROGRAM_ID).size.should == 1
   end
 
-  # TODO: fix it  
-  # it "should find programs by an adspace" do
-  #   Zanox::Program.find(:adspaceId=>TEST_ADSPACE_ID).size.should >= 1
-  # end
+  it "should find programs by an adspace" do
+    Zanox::Program.find(:adspaceId=>TEST_ADSPACE_ID).size.should >= 1
+  end
 end
 
 describe Zanox::Adspace do
   # Adspace.find
-  TEST_ADSPACE_ID = "1289612"
+  TEST_ADSPACE_ID = "99501"
   
   it "should find all user's Adspaces" do
     Zanox::Adspace.find(:all).size.should >=1
