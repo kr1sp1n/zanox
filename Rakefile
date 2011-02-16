@@ -1,72 +1,53 @@
-require 'rbconfig'
-include Config
+require 'rubygems'
+require 'bundler'
+begin
+  Bundler.setup(:default, :development)
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run `bundle install` to install missing gems"
+  exit e.status_code
+end
+require 'rake'
 
-task :default => [:test]
+require 'jeweler'
+Jeweler::Tasks.new do |gem|
+  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
+  gem.name = "zanox"
+  gem.homepage = "http://github.com/kr1sp1n/zanox"
+  gem.license = "CC"
+  gem.summary = %Q{One gem to rule the zanox API.}
+  gem.description = %Q{The easy way to the zanox web services.}
+  gem.email = "krispinone@googlemail.com"
+  gem.authors = ["Krispin Schulz", "Tobias Schlottke"]
+  # Include your dependencies below. Runtime dependencies are required when using your gem,
+  # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
+  gem.add_runtime_dependency 'ruby-hmac'
+  gem.add_runtime_dependency 'soap4r'
+end
+Jeweler::RubygemsDotOrgTasks.new
 
-case CONFIG['host_os']
-  when /mswin|windows/i
-    # Windows
-    $windows = true
-  when /linux/i
-    # Linux
-    $linux = true
-  when /sunos|solaris/i
-    # Solaris
-    $solaris = true
-  else
-    # Whatever
-    $mac = true
-end
- 
-$gem_name = "zanox"
- 
-desc "Test the library"
-task :test do
-  ruby Dir.glob("test/*")
-end
- 
-desc "Run specs" 
-task :spec do
-  sh "spec spec/* --format specdoc --color"
-end
- 
-desc "Build the gem"
-task :build do
-  sh "gem build #$gem_name.gemspec"
-  if windows?
-    sh "move /Y *.gem ./pkg"
-  else
-    sh "mv #$gem_name*.gem ./pkg"
-  end
-end
- 
-desc "Install the library at local machine"
-task :install => :build do
-  if windows?
-    sh "gem install ./pkg/#$gem_name -l"
-  else
-    sh "sudo gem install ./pkg/#$gem_name -l"
-  end
-end
- 
-desc "Uninstall the library from local machine"
-task :uninstall do
-  if windows?
-    sh "gem uninstall #$gem_name"  
-  else
-    sh "sudo gem uninstall #$gem_name"
-  end
-end
- 
-desc "Reinstall the library in the local machine"
-task :reinstall => [:uninstall, :install] do
-end
- 
-desc "Clean"
-task :clean do
-  # sh "rm #$gem_name*.gem" 
+require 'rake/testtask'
+Rake::TestTask.new(:test) do |test|
+  test.libs << 'lib' << 'test'
+  test.pattern = 'test/**/test_*.rb'
+  test.verbose = true
 end
 
-def windows?
-  !!$windows
+require 'rcov/rcovtask'
+Rcov::RcovTask.new do |test|
+  test.libs << 'test'
+  test.pattern = 'test/**/test_*.rb'
+  test.verbose = true
+end
+
+task :default => :test
+
+require 'rake/rdoctask'
+Rake::RDocTask.new do |rdoc|
+  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title = "zanox #{version}"
+  rdoc.rdoc_files.include('README*')
+  rdoc.rdoc_files.include('lib/**/*.rb')
 end

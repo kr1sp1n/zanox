@@ -3,12 +3,12 @@ h1. zanox
 by Krispin Schulz
 
 The zanox gem is the ruby way to use the zanox API.
-It is a coherent wrapper for the zanox Publisher web services and you can use resources like 
+It is a wrapper for the zanox Publisher web services and you can use resources like 
 models in ActiveRecord.
 
 h2. Getting started
 
-* Install the gem
+* Install the gem <pre><code>gem install zanox</code></pre>
 * Learn its usage with the examples below
 * Create shiny ruby apps with it
 
@@ -17,11 +17,13 @@ h2. Features
 Supported zanox API methods:
 
 |*zanox API method*|*the ruby way*|
-| getProgram | Zanox::Program.find('the program id here') |
-| getProgramsByAdspace | Zanox::Program.find(:adspaceId => 'your adspace id here') |
+| getAdspaces | Zanox::Adspace.find(:all) |
+| getAdspace | Zanox::Adspace.find('adspace id here')
+| getProgram | Zanox::Program.find('program id here') |
+| getProgramsByAdspace | Zanox::Program.find(:adspaceId => 'adspace id here') |
 | searchPrograms | Zanox::Program.find('amazon', :region=>'de') |
-| getProduct | Zanox::Product.find('the zupid of the product here') |
-| getProducts | Zanox::Product.find(:programId=>'program id is required here', :adspaceId=>'your adspace id here') |
+| getProduct | Zanox::Product.find('zupid of the product here') |
+| getProducts | Zanox::Product.find(:programId=>'program id is required here', :adspaceId=>'adspace id here') |
 | searchProducts | Zanox::Product.find('ipad', :region=>'de', :programId=>'a program id here') |
 | getSales | Zanox::Sale.find(:date=>'2010-03-02T00:00:00', :dateType=>'trackingDate') |
 
@@ -31,8 +33,16 @@ h2. Examples
     require 'rubygems'
     require 'zanox'
     
-    # first authenticate with your zanox connect id
-    Zanox::API.authenticate('26EE1314AEA84BB7C9FC')
+    # first fill in your zanox Application credentials
+    Zanox::API.authorize("your public key", "your secret key")
+
+    # you can get a new Session by passing an auth token that 
+    # will be in the callback url after the 
+    # successful login of a zanox Publisher
+    # e.g. Zanox::API::Session.new("fill in the parameter 'authtoken'")
+
+    # or use an offline token to retrieve a valid zanox Session
+    Zanox::API::Session.offline("fill in the offline token of a Publisher")
 
     # request products as easy as hell
     Zanox::Product.find('ipod').each do |product|

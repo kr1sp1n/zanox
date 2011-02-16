@@ -42,9 +42,7 @@ module Zanox
     end
     
     def self.generate_nonce
-      mt = Time.new.usec
-      rand = rand()
-      Digest::MD5.hexdigest((mt + rand).to_s)
+      Digest::MD5.hexdigest((Time.new.usec + rand()).to_s)
     end
     
     def self.get_timestamp
@@ -52,7 +50,7 @@ module Zanox
     end
     
     def self.create_signature(secret_key, string2sign)
-      signature = Base64.encode64(HMAC::SHA1.new(secret_key).update(string2sign).digest)[0..-2]
+      Base64.encode64(HMAC::SHA1.new(secret_key).update(string2sign).digest)[0..-2]
     end
     
     def self.authorize(public_key, secret_key)
@@ -62,10 +60,7 @@ module Zanox
     end
     
     def self.authenticate(connect_id, secret_key=nil)
-      #todo: real session request with connect flow
-      @connect_id = connect_id
-      @secret_key = secret_key
-      true
+      raise 'Zanox::API.authenticate(connect_id, secret_key) is no longer supported. Please use Zanox::API.authorize("your public key", "your secret key") instead.'
     end
     
     module Session
