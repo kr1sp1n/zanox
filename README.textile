@@ -18,7 +18,7 @@ Supported zanox API methods:
 
 |*zanox API method*|*the ruby way*|
 | getAdspaces | Zanox::Adspace.find(:all) |
-| getAdspace | Zanox::Adspace.find('adspace id here')
+| getAdspace | Zanox::Adspace.find('adspace id here') |
 | getProgram | Zanox::Program.find('program id here') |
 | getProgramsByAdspace | Zanox::Program.find(:adspaceId => 'adspace id here') |
 | searchPrograms | Zanox::Program.find('amazon', :region=>'de') |
