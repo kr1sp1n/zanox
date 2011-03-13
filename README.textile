@@ -33,16 +33,9 @@ h2. Examples
     require 'rubygems'
     require 'zanox'
     
-    # first fill in your zanox Application credentials
-    Zanox::API.authorize("your public key", "your secret key")
-
-    # you can get a new Session by passing an auth token that 
-    # will be in the callback url after the 
-    # successful login of a zanox Publisher
-    # e.g. Zanox::API::Session.new("fill in the parameter 'authtoken'")
-
-    # or use an offline token to retrieve a valid zanox Session
-    Zanox::API::Session.offline("fill in the offline token of a Publisher")
+    # fill in your credentials
+    Zanox::API::Session.connect_id = 'your connect id'
+    Zanox::API::Session.secret_key = 'your secret key'
 
     # request products as easy as hell
     Zanox::Product.find('ipod').each do |product|
@@ -52,6 +45,11 @@ h2. Examples
     # request a product by its zupid
     Zanox::Product.find('b84145a6c81a455c99a90194db15aed3').each do |product|
       puts product.id + " : " + product.name
+    end
+
+    # get all your zanox adspaces
+    Zanox::Adspace.find(:all).each do |adspace|
+      puts adspace.id + " : " + adspace.name
     end
 </code></pre>
 

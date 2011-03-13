@@ -1,6 +1,7 @@
 require File.join(File.dirname(__FILE__),"..","lib","zanox.rb")
 
-Zanox::API.authenticate('your connect id here', 'your secret key here')
+Zanox::API::Session.connect_id = 'your connect id'
+Zanox::API::Session.secret_key = 'your secret key'
 
 def show(items, *args)
   puts "\nFound items: "+items.size.to_s+"\n"
