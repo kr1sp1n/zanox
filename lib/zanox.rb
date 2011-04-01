@@ -75,12 +75,7 @@ module Zanox
       
       def self.offline(offline_token)
         response = Zanox::Connect.request("getOfflineSession", {:offlineToken=>offline_token})
-        self.map(response)
-        if(response.respond_to?(:session))
-          response.session
-        else
-          {:error=>"error!!! offline session"}
-        end
+        (self.map(response)) ? response.session : {:error=>"error!!! offline session"}
       end
       
       def map(response)
