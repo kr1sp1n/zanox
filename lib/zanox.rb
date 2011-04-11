@@ -82,7 +82,7 @@ module Zanox
         if(response.respond_to?(:session))
           @connect_id = response.session.connectId
           @secret_key = response.session.secretKey
-          @offline_token = response.session.offlineToken
+          @offline_token = (response.session.respond_to?(:offlineToken)) ? response.session.offlineToken : nil
           true
         else
           false
