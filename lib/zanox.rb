@@ -29,7 +29,7 @@ module Zanox
           options.merge!(:timestamp=>timestamp, :nonce=>nonce, :signature=>signature)
         end
       
-        @wsdl = 'http://api.zanox.com/wsdl/2009-07-01/' unless !!@wsdl
+        @wsdl = 'http://api.zanox.com/wsdl/2011-03-01/' unless !!@wsdl
         @driver = SOAP::WSDLDriverFactory.new(@wsdl).create_rpc_driver unless !!@driver
         @driver.wiredump_dev = STDOUT if $DEBUG
         @driver.options['protocol.http.ssl_config.verify_mode'] = OpenSSL::SSL::VERIFY_NONE if $DEBUG
@@ -151,7 +151,7 @@ module Zanox
       end
       
       if(class_name=='Program' && options.has_key?(:adspaceId))
-        api_method = "getProgramsByAdspace"
+        raise 'Zanox::Program.find(:adspaceId) is no longer supported. Please use the new Zanox::ProgramApplication.find(:adspaceId) instead.'
       end
       
       response = Zanox::API.request(api_method, options)
@@ -399,6 +399,40 @@ module Zanox
     
     def self.is_key?(id)
       id.to_s[/[0-9A-Fa-f]{20}/] ? true : false
+    end
+  end
+  
+  module Application
+    include Item
+    extend  Item
+    
+    def self.key_symbol
+      :applicationId
+    end
+    
+    def self.pluralize
+      "Applications"
+    end
+    
+    def self.is_key?(id)
+      id.to_s[/[0-9A-Fa-f]{20}/] ? true : false
+    end
+  end
+  
+  module ProgramApplication
+    include Item
+    extend Item
+    
+    def self.key_symbol
+      :programApplicationId
+    end
+    
+    def self.pluralize
+      "ProgramApplications"
+    end
+    
+    def self.is_key?(id)
+      id.to_s[/^[0-9]{2,10}$/] ? true : false
     end
   end
   

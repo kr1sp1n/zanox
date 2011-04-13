@@ -23,6 +23,8 @@ end
 # PRODUCTS #
 ############
 
+puts "\nPRODUCTS"
+
 # find products by keywords
 products = Zanox::Product.find('ipod')
 show products, "Product ", :id, "\t\"", :name, "\" - ", :price, " ", :currency
@@ -33,6 +35,8 @@ show products, "Product ", :id, "\t\"", :name, "\" - ", :price, " ", :currency
 
 # ADSPACES #
 ############
+
+puts "\nADSPACES"
 
 # find all your Adspaces
 adspaces = Zanox::Adspace.find(:all)
@@ -46,6 +50,8 @@ show adspaces, "Adspace ", :id, "\t\"", :name, "\""
 # PROGRAMS #
 ############
 
+puts "\nPROGRAMS"
+
 # find zanox programs by keywords
 programs = Zanox::Program.find('amazon')
 show programs, "Program ", :id, "\t\"", :name, "\""
@@ -56,25 +62,28 @@ programs = Zanox::Program.find(program_id)
 show programs, "Program ", :id, "\t\"", :name, "\""
 
 # or find programs that are registered with one of your Adspaces
-programs = Zanox::Program.find(:adspaceId => adspace_id)
-show programs, "Program ", :id, "\t\"", :name, "\""
+programs = Zanox::ProgramApplication.find(:adspaceId => adspace_id)
+show programs, "Program Application ", :id, "\t\"", :status, "\""
 
 # SALES #
 #########
 
 puts "\nSALES"
+
 # find a sale by date
 date = "2010-03-02T00:00:00"
 sales = Zanox::Sale.find(:date=>date, :dateType=>'trackingDate')
 show sales, "Sale ", :id, " ", :commission, " EUR - ", :reviewState
 
 # get zpar
-sales[0].gpps.gpp.each do |gpp|
-  puts gpp.xmlattr_id + " = " + gpp
-end
+#sales[0].gpps.gpp.each do |gpp|
+#  puts gpp.xmlattr_id + " = " + gpp
+#end
 
 # MEDIASLOTS #
 ##############
+
+puts "\nMEDIASLOTS"
 
 # find all your MediaSlots
 mediaslots = Zanox::MediaSlot.find(:all, :items=>99)
