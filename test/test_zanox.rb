@@ -53,21 +53,13 @@ class TestZanoxProgramApplication < Test::Unit::TestCase
   should "find program applications by an adspace" do
     assert(Zanox::ProgramApplication.find(:adspaceId=>TEST_ADSPACE_ID).size >= 1)
   end
-  
-  should "find riemer's program applications for zalando.nl" do
-    Zanox::API::Session.offline('FDF159E4E3FB13A2D594FF7467693A4DF6D66864ECEBD235350473C438C82E043716FD')
-    puts
-    puts "Riemer's connect id : " + Zanox::API::Session.connect_id
-    puts
-    assert(Zanox::ProgramApplication.find(:adspaceId=>'731770').size >= 1)
-  end
 end
 
-# class TestZanoxSale < Test::Unit::TestCase
-#   should "find all sales for a given date" do
-#     assert(Zanox::Sale.find(:date=>TEST_SALE_DATE, :dateType=>'trackingDate').size.should >= 1)
-#   end
-#   should "find a sale by its id" do
-#     assert_equal(1, Zanox::Sale.find(TEST_SALE_ID).size)
-#   end
-# end
+class TestZanoxSale < Test::Unit::TestCase
+  should "find all sales for a given date" do
+    assert(Zanox::Sale.find(:date=>TEST_SALE_DATE, :dateType=>'trackingDate').size.should >= 1)
+  end
+  should "find a sale by its id" do
+    assert_equal(1, Zanox::Sale.find(TEST_SALE_ID).size)
+  end
+end
