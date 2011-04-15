@@ -19,9 +19,7 @@ module Zanox
         puts method + " " + options.inspect if $DEBUG
       
         options.merge!(:connectId=>Zanox::API::Session.connect_id)
-      
-        #raise AuthError, "Missing connect id. Try calling Zanox::API.authenticate('your connect id', 'your secret key') before your requests", caller[caller.length - 1] if !!options[:connect_id]
-      
+        
         unless Zanox::API::Session.secret_key.nil?
           timestamp = Zanox::API.get_timestamp
           nonce = Zanox::API.generate_nonce
@@ -51,16 +49,6 @@ module Zanox
     
     def self.create_signature(secret_key, string2sign)
       Base64.encode64(HMAC::SHA1.new(secret_key).update(string2sign).digest)[0..-2]
-    end
-    
-    def self.authorize(public_key, secret_key)
-      @public_key = public_key
-      @secret_key = secret_key
-      true
-    end
-    
-    def self.authenticate(connect_id, secret_key=nil)
-      raise 'Zanox::API.authenticate(connect_id, secret_key) is no longer supported. Please use Zanox::API.authorize("your public key", "your secret key") instead.'
     end
     
     module Session
