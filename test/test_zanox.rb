@@ -55,11 +55,11 @@ class TestZanoxProgramApplication < Test::Unit::TestCase
   end
 end
 
-class TestZanoxSale < Test::Unit::TestCase
-  should "find all sales for a given date" do
-    assert(Zanox::Sale.find(:date=>TEST_SALE_DATE, :dateType=>'trackingDate').size.should >= 1)
-  end
-  should "find a sale by its id" do
-    assert_equal(1, Zanox::Sale.find(TEST_SALE_ID).size)
-  end
-end
+# class TestZanoxSale < Test::Unit::TestCase
+#   should "find all sales for a given date" do
+#     assert(Zanox::Sale.find(:date=>TEST_SALE_DATE, :dateType=>'trackingDate').size.should >= 1)
+#   end
+#   should "find a sale by its id" do
+#     assert_equal(1, Zanox::Sale.find(TEST_SALE_ID).size)
+#   end
+# end

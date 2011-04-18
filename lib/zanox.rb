@@ -187,16 +187,13 @@ module Zanox
 
       if(ids.size==0 && queries.size==0)
         api_method = 'get'+class_name
-        unless Zanox::API.secret_key.nil?
-          response = Zanox::API.request(api_method, options)
-          class_name.sub!(/\b\w/) { $&.downcase }
-          item_method = (class_name+'Item').to_sym
-          if(response.respond_to?(item_method))
-            item = self.new(response.method(item_method).call)
-            items.push item
-          end
+        response = Zanox::API.request(api_method, options)
+        class_name.sub!(/\b\w/) { $&.downcase }
+        item_method = (class_name+'Item').to_sym
+        if(response.respond_to?(item_method))
+          item = self.new(response.method(item_method).call)
+          items.push item
         end
-        
       end
 
       if(ids.size>0)

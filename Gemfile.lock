@@ -10,6 +10,7 @@ GEM
     rake (0.8.7)
     rcov (0.9.9)
     redgreen (1.2.2)
+    ruby-graphviz (0.9.21)
     ruby-hmac (0.4.0)
     shoulda (2.11.3)
     soap4r (1.5.8)
@@ -23,6 +24,7 @@ DEPENDENCIES
   jeweler (~> 1.5.2)
   rcov
   redgreen
+  ruby-graphviz
   ruby-hmac
   shoulda
   soap4r
