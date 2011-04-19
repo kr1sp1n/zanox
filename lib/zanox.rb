@@ -54,15 +54,16 @@ module Zanox
     module Session
       attr_accessor :connect_id
       attr_accessor :secret_key
+      attr_accessor :session_key
       attr_accessor :offline_token
       
       def self.new(auth_token)
-        response = Zanox::Connect.request("getSession", {:authToken=>auth_token})
+        response = Zanox::Connect.request("getSession", {:authToken=>auth_token, :publicKey=>Zanox::API.public_key})
         self.map(response)
       end
       
       def self.offline(offline_token)
-        response = Zanox::Connect.request("getOfflineSession", {:offlineToken=>offline_token})
+        response = Zanox::Connect.request("getOfflineSession", {:offlineToken=>offline_token, :publicKey=>Zanox::API.public_key})
         (self.map(response)) ? response.session : {:error=>"error!!! offline session"}
       end
       
@@ -70,6 +71,7 @@ module Zanox
         if(response.respond_to?(:session))
           @connect_id = response.session.connectId
           @secret_key = response.session.secretKey
+          @session_key = response.session.sessionKey
           @offline_token = (response.session.respond_to?(:offlineToken)) ? response.session.offlineToken : nil
           true
         else
@@ -93,9 +95,8 @@ module Zanox
     attr_accessor :wsdl
     attr_accessor :driver
     
-    def self.request(method, options)
+    def self.request(method, options={})
       begin
-        options.merge!(:publicKey=>Zanox::API.public_key)
       
         unless Zanox::API.secret_key.nil?
           timestamp = Zanox::API.get_timestamp
@@ -114,6 +115,10 @@ module Zanox
         puts "ERROR"
         puts e.message
       end
+    end
+    
+    def self.ui_url
+      Zanox::Connect.request("getUiUrl", :connectId=>Zanox::API::Session.connect_id, :sessionKey=>Zanox::API::Session.session_key)
     end
     
     self.instance_methods.each do |method|
